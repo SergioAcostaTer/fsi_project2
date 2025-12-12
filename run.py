@@ -1,10 +1,7 @@
-# Search methods
-
 import search
 import time
 
 base = search.GPSProblem('A', 'B', search.romania)
-ab = search.InstrumentedProblem(base)
 
 algorithms = [
     search.breadth_first_graph_search,
@@ -13,41 +10,39 @@ algorithms = [
     search.branch_and_bound_subestimation_graph_search
 ]
 
+print(f"Problem: Start {base.initial} -> Goal {base.goal}\n")
+
+def run_algorithm(algorithm, base_problem):
+    problem = search.InstrumentedProblem(base_problem)
+    
+    start = time.time()
+    result = algorithm(problem)
+    end = time.time()
+    
+    if result:
+        path = str(result.path())
+        cost = result.path_cost
+    else:
+        path = "No solution"
+        cost = 0
+        
+    return [
+        algorithm.__name__,
+        problem.generated,
+        problem.visited,
+        cost,
+        f"{end - start:.6f}",
+        path
+    ]
+
 header = ["Algorithm", "Generated", "Visited", "Cost", "Time (s)", "Path"]
 data = []
 
-print(f"Problem: Start {base.initial} -> Goal {base.goal}\n")
-
-for algorithm in algorithms:
-    start_time = time.time()
-    result = algorithm(ab)
-    end_time = time.time()
-    
-    elapsed_time = end_time - start_time
-    
-    if result:
-        path_str = str(result.path()) 
-        cost = result.path_cost
-    else:
-        path_str = "No solution"
-        cost = 0
-        
-    generated = ab.generated
-    visited = ab.visited
-    
-    data.append([
-        algorithm.__name__, 
-        generated, 
-        visited, 
-        cost, 
-        f"{elapsed_time:.6f}", 
-        path_str
-    ])
-    
-    ab.clear()
+for algo in algorithms:
+    data.append(run_algorithm(algo, base))
 
 search.print_table(data, header=header, sep=' | ')
 
-# Result Reference (from previous runs):
-# [<Node B>, <Node P>, <Node R>, <Node S>, <Node A>] : 101 + 97 + 80 + 140 = 418
-# [<Node B>, <Node F>, <Node S>, <Node A>] : 211 + 99 + 140 = 450
+# Reference Results:
+# BFS: [<Node B>, <Node P>, <Node R>, <Node S>, <Node A>] (Cost: 418)
+# DFS: [<Node B>, <Node F>, <Node S>, <Node A>] (Cost: 450)

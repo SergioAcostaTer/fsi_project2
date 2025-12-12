@@ -75,6 +75,9 @@ class Node:
     def __repr__(self):
         return "<Node %s>" % (self.state,)
 
+    def __lt__(self, node):
+        return self.state < node.state
+
     def path(self):
         """Create a list of nodes from the root to this node."""
         x, result = self, [self]
