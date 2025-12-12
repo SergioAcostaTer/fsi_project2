@@ -2,11 +2,25 @@
 
 import search
 
-ab = search.GPSProblem('A', 'B'
-                       , search.romania)
+base = search.GPSProblem('A', 'B', search.romania)
+ab = search.InstrumentedProblem(base)
 
-print(search.breadth_first_graph_search(ab).path())
-print(search.depth_first_graph_search(ab).path())
+algorithms = [
+    search.breadth_first_graph_search,
+    search.depth_first_graph_search,
+    search.branch_and_bound_graph_search,
+    search.branch_and_bound_subestimation_graph_search
+]
+
+# Loop through each algorithm
+for algorithm in algorithms:
+    print(f"\n--- {algorithm.__name__} ---") 
+    
+    print(algorithm(ab).path())
+    
+    ab.printNodeStats()
+    
+    ab.clear()
 
 # Result:
 # [<Node B>, <Node P>, <Node R>, <Node S>, <Node A>] : 101 + 97 + 80 + 140 = 418

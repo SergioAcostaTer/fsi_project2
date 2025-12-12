@@ -1,4 +1,4 @@
-
+import math
 #______________________________________________________________________________
 # Simple Data Structures: infinity, Dict, Struct
 
@@ -491,7 +491,7 @@ def DataFile(name, mode='r'):
 
 
 #______________________________________________________________________________
-# Queues: Stack, FIFOQueue
+# Queues: Stack, FIFOQueue, PriorityQueue
 
 class Queue:
     """Queue is an abstract class/interface. There are three types:
@@ -543,6 +543,21 @@ class FIFOQueue(Queue):
             self.start = 0
         return e
 
+class PriorityQueue(Queue):
+    """A queue in which the item with minimum f(item) is always popped first."""
+    def __init__(self, f=lambda x: x):
+        self.A = []
+        self.f = f
+
+    def append(self, item):
+        self.A.append((self.f(item), item))
+        self.A.sort()
+
+    def __len__(self):
+        return len(self.A)
+
+    def pop(self):
+        return self.A.pop(0)[1]
 
 
 ## Fig: The idea is we can define things like Fig[3,10] later.

@@ -90,6 +90,46 @@ class Node:
                 for (act, next) in problem.successor(self.state)]
 
 
+class InstrumentedProblem(Problem):
+    """
+    Delegates to a problem, and keeps track of the generated and visited nodes
+    """
+    def __init__(self, problem):
+        self.problem = problem
+        self.initial = problem.initial
+        self.goal = problem.goal
+        self.generated = 0
+        self.visited = 0
+    
+    def successor(self, state):
+        successors = self.problem.successor(state)
+        self.generated += len(successors) 
+        return successors
+    
+    def goal_test(self, state):
+        self.visited += 1
+        return self.problem.goal_test(state)
+    
+    def path_cost(self, c, state1, action, state2):
+        return self.problem.path_cost(c, state1, action, state2)
+    
+    def h(self, node):
+        if hasattr(self.problem, 'h'):
+            return self.problem.h(node)
+        return 0
+    
+    def printNodeStats(self):
+        """Prints the current metrics."""
+        print(f"Visited: {self.visited} | Generated: {self.generated}\n")
+
+    def clear(self):
+        """Resets metrics to zero for reuse."""
+        self.generated = 0
+        self.visited = 0
+
+    def __getattr__(self, attr):
+        return getattr(self.problem, attr)
+
 # ______________________________________________________________________________
 ## Uninformed Search algorithms
 
@@ -98,6 +138,10 @@ def graph_search(problem, fringe):
     The argument fringe should be an empty queue.
     If two paths reach a state, only use the best one. [Fig. 3.18]"""
     closed = {}
+    
+    if isinstance(problem, InstrumentedProblem):
+        problem.generated += 1 
+
     fringe.append(Node(problem.initial))
     while fringe:
         node = fringe.pop()
@@ -118,6 +162,17 @@ def depth_first_graph_search(problem):
     """Search the deepest nodes in the search tree first. [p 74]"""
     return graph_search(problem, Stack())
 
+def branch_and_bound_graph_search(problem):
+    """
+    (Ramificación y Acotación)
+    """
+    return graph_search(problem, PriorityQueue(lambda node: node.path_cost))
+
+def branch_and_bound_subestimation_graph_search(problem):
+    """
+    (Ramificación y Acotación con Subestimación)
+    """
+    return graph_search(problem, PriorityQueue(lambda node: node.path_cost + problem.h(node)))
 
 
 # _____________________________________________________________________________
