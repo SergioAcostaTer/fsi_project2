@@ -544,9 +544,12 @@ class FIFOQueue(Queue):
         return e
 
 class PriorityQueue(Queue):
-    """A queue in which the item with minimum f(item) is always popped first."""
-    def __init__(self, f=lambda x: x):
+    """A queue in which the minimum element (as determined by f and
+    order) is returned first.  The default order is min, and the default f
+    is the identity function."""
+    def __init__(self, f=lambda x: x, order=min):
         self.A = []
+        self.order = order
         self.f = f
 
     def append(self, item):
@@ -557,7 +560,10 @@ class PriorityQueue(Queue):
         return len(self.A)
 
     def pop(self):
-        return self.A.pop(0)[1]
+        if self.order == min:
+            return self.A.pop(0)[1]
+        else:
+            return self.A.pop()[1]
 
 
 ## Fig: The idea is we can define things like Fig[3,10] later.
